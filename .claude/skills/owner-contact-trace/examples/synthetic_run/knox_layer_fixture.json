@@ -1,0 +1,142 @@
+{
+  "objectIdFieldName": "OBJECTID",
+  "globalIdFieldName": "",
+  "fields": [
+    {
+      "name": "PARCELID",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "OWNER",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "FULL_ADDRESS",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "FULL_MAIL_ADDRESS",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "FULL_MAIL_CITY_STATE_ZIP",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "CALCULATED_AREA",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "LANDUSE",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "APPRAISED_TOTAL",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "SALE_DATE",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "PURCHASE_PRICE",
+      "type": "esriFieldTypeString"
+    },
+    {
+      "name": "SUBDIVISION_NAME",
+      "type": "esriFieldTypeString"
+    }
+  ],
+  "features": [
+    {
+      "attributes": {
+        "PARCELID": "090  07403",
+        "OWNER": "SAMPLETON RONALD ALLEN & VIRGINIA M",
+        "FULL_ADDRESS": "8345 EXAMPLE ELK LN",
+        "FULL_MAIL_ADDRESS": "10205 EXAMPLE MILL RD",
+        "FULL_MAIL_CITY_STATE_ZIP": "KNOXVILLE, TN 37931",
+        "CALCULATED_AREA": 29.08,
+        "LANDUSE": "Agricultural",
+        "APPRAISED_TOTAL": 412000,
+        "SALE_DATE": "2004-06-11",
+        "PURCHASE_PRICE": 88000,
+        "SUBDIVISION_NAME": ""
+      }
+    },
+    {
+      "attributes": {
+        "PARCELID": "125  00801",
+        "OWNER": "EXAMPLE RIDGE HOLDINGS LLC",
+        "FULL_ADDRESS": "4120 EXAMPLE MILL RD",
+        "FULL_MAIL_ADDRESS": "88 SAMPLE ST",
+        "FULL_MAIL_CITY_STATE_ZIP": "DEMOVILLE, TN 37999",
+        "CALCULATED_AREA": 41.2,
+        "LANDUSE": "Agricultural",
+        "APPRAISED_TOTAL": 905000,
+        "SALE_DATE": "2019-03-02",
+        "PURCHASE_PRICE": 610000,
+        "SUBDIVISION_NAME": ""
+      }
+    },
+    {
+      "attributes": {
+        "PARCELID": "077  01200",
+        "OWNER": "BRIAN & CONNIE PIERCE LIVING TRUST",
+        "FULL_ADDRESS": "221 EXAMPLE RIDGE RD",
+        "FULL_MAIL_ADDRESS": "221 EXAMPLE RIDGE RD",
+        "FULL_MAIL_CITY_STATE_ZIP": "KNOXVILLE, TN 37920",
+        "CALCULATED_AREA": 12.6,
+        "LANDUSE": "Residential",
+        "APPRAISED_TOTAL": 330000,
+        "SALE_DATE": "1998-11-20",
+        "PURCHASE_PRICE": 42000,
+        "SUBDIVISION_NAME": ""
+      }
+    },
+    {
+      "attributes": {
+        "PARCELID": "044  00100",
+        "OWNER": "C S X TRANSPORTATION INC",
+        "FULL_ADDRESS": "1 EXAMPLE RAIL SPUR",
+        "FULL_MAIL_ADDRESS": "ATTN PROPERTY TAX PO BOX 44",
+        "FULL_MAIL_CITY_STATE_ZIP": "JACKSONVILLE, FL 32202",
+        "CALCULATED_AREA": 88.0,
+        "LANDUSE": "Industrial",
+        "APPRAISED_TOTAL": 1200000,
+        "SALE_DATE": "",
+        "PURCHASE_PRICE": 0,
+        "SUBDIVISION_NAME": ""
+      }
+    },
+    {
+      "attributes": {
+        "PARCELID": "061  00920",
+        "OWNER": "EXAMPLETON STEPHEN WESLEY CO TR",
+        "FULL_ADDRESS": "900 EXAMPLE HOLLOW RD",
+        "FULL_MAIL_ADDRESS": "PO BOX 159",
+        "FULL_MAIL_CITY_STATE_ZIP": "WINGATE, NC 28174",
+        "CALCULATED_AREA": 54.3,
+        "LANDUSE": "Agricultural",
+        "APPRAISED_TOTAL": 275000,
+        "SALE_DATE": "2011-07-08",
+        "PURCHASE_PRICE": 150000,
+        "SUBDIVISION_NAME": ""
+      }
+    },
+    {
+      "attributes": {
+        "PARCELID": "099  00001",
+        "OWNER": "   ",
+        "FULL_ADDRESS": "0 EXAMPLE TRACT",
+        "FULL_MAIL_ADDRESS": " ",
+        "FULL_MAIL_CITY_STATE_ZIP": " ",
+        "CALCULATED_AREA": 3.1,
+        "LANDUSE": "Vacant",
+        "APPRAISED_TOTAL": 18000,
+        "SALE_DATE": "",
+        "PURCHASE_PRICE": 0,
+        "SUBDIVISION_NAME": ""
+      }
+    }
+  ]
+}
