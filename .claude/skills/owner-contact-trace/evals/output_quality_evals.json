@@ -1,0 +1,66 @@
+{
+  "skill": "owner-contact-trace",
+  "note": "Rubric axes for a completed run. Each is a hard pass/fail against artifacts on disk.",
+  "axes": [
+    {
+      "id": "line_type_source_present",
+      "assert": "every row with a non-empty primary_line_type has a non-empty line_type_source drawn from the allowlist",
+      "why": "US number portability makes any computed line type structurally meaningless; a type without a source is not trustworthy",
+      "check": "delivery_gate.py line-type-source-required and line-type-source-allowlist"
+    },
+    {
+      "id": "every_apn_has_a_disposition",
+      "assert": "every input APN appears in COVERAGE.json with a disposition from the closed vocabulary",
+      "why": "a row with no disposition is a silent blank, and 'we never looked' must stay distinct from 'we looked and rejected it'",
+      "check": "delivery_gate.py apn-without-disposition and disposition-vocabulary"
+    },
+    {
+      "id": "unscrubbed_numbers_are_stamped",
+      "assert": "no number lacking a DNC value lacks the literal 'NOT YET SCRUBBED — do not dial or text'",
+      "why": "dial-readiness is a PER-ROW property; an unstamped unscrubbed number reads as dialable",
+      "check": "delivery_gate.py dnc-value-or-stamp"
+    },
+    {
+      "id": "no_institutional_owner_on_call_list",
+      "assert": "no suppressed owner appears on the Call List sheet, and every suppression carries its literal matched pattern on the audit sheet",
+      "why": "pinellas.json said 'screen out explicitly' in a COMMENT ONLY and Stauffer shipped. A comment in a config is not a filter",
+      "check": "delivery_gate.py suppressed-on-call-list"
+    },
+    {
+      "id": "redaction_scan_clean",
+      "assert": "leak_scan.py reports zero blocking findings",
+      "why": "raw harvested text once leaked 72 cleartext passwords into the iCloud root; the scan is scoped so approved phone columns pass and everywhere else blocks",
+      "check": "leak_scan.py"
+    },
+    {
+      "id": "manifest_records_snapshot_and_vintage",
+      "assert": "the run manifest records the frozen snapshot hash and cordata_vintage",
+      "why": "a deliverable must be tied to the exact code and registry snapshot that produced it; a vintage older than 45 days warns and offers the delta pull",
+      "check": "freeze.sh RUN_SKILL_HASH and sunbiz_pierce.py cordata_vintage"
+    },
+    {
+      "id": "three_conclusions_not_one",
+      "assert": "ownership_status, role_status and phone_attribution_status are populated independently and no row renders PRIMARY MOBILE without VERIFIED-PHONE AND VERIFIED-MOBILE",
+      "why": "collapsing the three is the confident-error this skill exists to prevent",
+      "check": "delivery_gate.py primary-mobile-label and tax-roll-vs-verified"
+    },
+    {
+      "id": "no_coerced_unknowns",
+      "assert": "no truth-valued field serializes as N where the check never ran",
+      "why": "doctrine 18 — a deceased check that never ran must not render as 'not deceased'",
+      "check": "delivery_gate.py no-coercion-of-unknowns"
+    },
+    {
+      "id": "unresolved_frontier_emitted",
+      "assert": "HUMANS.json carries unresolved_frontier whenever an entity chain did not terminate in a natural person",
+      "why": "three hops is an operational limit, not a confidence statement; omitting the frontier implies the chain ended",
+      "check": "schemas/humans.schema.json requires it at the document level"
+    },
+    {
+      "id": "coverage_kpi_stated",
+      "assert": "coverage is reported as classified mobiles / non-suppressed owner rows against the 0.50 bar",
+      "why": "the KPI denominator is stated once and computed one way, so runs are comparable",
+      "check": "build_call_list.py --coverage"
+    }
+  ]
+}

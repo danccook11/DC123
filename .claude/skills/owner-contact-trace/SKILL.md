@@ -211,6 +211,8 @@ Stated plainly rather than described as working:
 - **The FL Sunbiz `cordata.zip` quarterly (1,819,049,954 bytes, members dated 2026-07-10) is not present.** `sunbiz_pierce.py` is proven against a synthetic CRLF-terminated fixture at the corrected offsets, not against the live quarterly. Run `getcor.exp` and re-run the parser against a real member before trusting a production pierce.
 - **No recorder/deed route is implemented for any county.** Stage 1a therefore emits `DEED-UNAVAILABLE (<county>, <date>)` and every assessor-only row is labelled `TAX-ROLL-OWNER`. Trusts stop at `TRUST-NEEDS-DEED`. This is the largest functional gap in the skill and it is deliberate — see `references/authoritative_sources.md`.
 - **Vendor keys, the Zoho connector and the Tracerfy connector are absent from the build environment.** Every vendor path is coded and gated behind a `doctor.py` probe, and proven against recorded-shape fixtures with fictional digits. No path has been exercised against a live account in this build.
+- **`tx_pecos` is a web-grid adapter, not an ArcGIS layer, and is NOT IMPLEMENTED.** Its full `POST /Home/SearchTableV2` form contract is recorded in `config/counties/tx_pecos.json`, and `county_fetch.py` raises a named error rather than returning an empty result. Pecos parcels must be resolved by hand until it is built.
+- **No vendor client is wired to a live account.** `vendor_client.py` implements the budget gate, the ledger, the doctrine guards and the estimator, and is exercised end to end — but the actual HTTP/MCP calls to Tracerfy, Apify, BatchData, Sherpa and Melissa are not implemented. `scripts/melissa.py` does not exist. Stage 7 currently consumes recorded-shape fixtures.
 - **Foreign FL filings are not followed to their home registry** — 38 of 124 matched entities. A named gap, not a solved case.
 - **TN has no entity-pierce route today** (OpenGovUS HTTP 500 on every query form, 2026-08-11). Knox — this skill's own canonical county — emits `UNEVALUATED — TN registry route down` and must not escalate to a paid vendor.
 
@@ -227,7 +229,9 @@ Every BLOCKED entry carries its zero-cost re-probe. Probe before assuming; do no
 2026-08-10 — Skip Sherpa — key BLOCKED, rotated key returns "Invalid API Key"; /api/business
              404s (not provisioned) — re-probe PUT /api/person {} (403 = dead)
 2026-08-10 — Melissa Property Cloud — GE05/GE08 — re-probe
-             GET usage.melissadata.net/v1/license?id=<key>; any YS## ⇒ run melissa.py selftest
+             GET usage.melissadata.net/v1/license?id=<key>; any YS## means the key is live,
+             at which point BUILD the client (scripts/melissa.py does not exist — see
+             ## Blocked) and selftest it for 1 credit before trusting it
 2026-08-06 & 2026-08-10 — tnbear.tn.gov — returns 000 from every route tried — no probe worth
              running; use the documented corroboration-tier fallbacks
 2026-08-10 — sosnc.gov — Cloudflare AND terms prohibit automated search — NO_ROUTE; ask Mitch
