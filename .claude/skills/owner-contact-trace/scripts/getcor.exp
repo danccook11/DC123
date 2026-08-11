@@ -1,0 +1,117 @@
+#!/usr/bin/expect -f
+# getcor.exp — fetch the FL Sunbiz bulk quarterly over SFTP.
+#
+# WHY EXPECT AND NOT CURL: macOS curl has no sftp protocol. This drives /usr/bin/sftp under
+# /usr/bin/expect. It is one of exactly two intentionally non-Python helpers in scripts/
+# (the other is fetch_datasets.sh).
+#
+# The credential is a PUBLIC-ACCESS account published by the State of Florida on dos.fl.gov.
+# It is not a secret. It is still read from operator config rather than hardcoded here, so
+# that there is exactly one place to change it -- and because the publishing page 403s to
+# plain curl, so if it ever rotates you must use the Browser pane to read the new value, not
+# curl and not WebFetch.
+#
+# NEVER EXTRACT THE ZIP. The expansion is 18.5 GB and is prohibited anywhere, iCloud or not.
+# Stream members with `unzip -p cordata.zip <member>` and pipe into sunbiz_pierce.py.
+#
+# Sizes and timings, measured:
+#   doc/Quarterly/Cor/cordata.zip   1,819,049,954 bytes   ~4 min download
+#   a full 10-member parse pass     ~90 s (8.8 s per 1.85 GB member, 12.8M records)
+#
+# Usage:
+#   expect scripts/getcor.exp <dest_dir> [user] [password] [remote_path]
+#   expect scripts/getcor.exp "$CACHE/sunbiz"
+#
+# Defaults come from config/credentials.example.yaml; pass them explicitly to override.
+
+set timeout 900
+
+set dest        [lindex $argv 0]
+set user        [lindex $argv 1]
+set password    [lindex $argv 2]
+set remote_path [lindex $argv 3]
+
+if {$dest eq ""} {
+    puts "usage: expect getcor.exp <dest_dir> \[user\] \[password\] \[remote_path\]"
+    puts ""
+    puts "Downloads the FL Sunbiz bulk quarterly. Do NOT re-download unless the quarterly"
+    puts "has rolled -- check the on-disk member mtime (cordata_vintage) first."
+    exit 2
+}
+if {$user eq ""}        { set user "Public" }
+if {$password eq ""}    { set password "PubAccess1845!" }
+if {$remote_path eq ""} { set remote_path "doc/Quarterly/Cor/cordata.zip" }
+
+set host "sftp.floridados.gov"
+
+file mkdir $dest
+
+# Download to a .part file and rename only on success, so an interrupted transfer can never
+# be mistaken for a complete 1.8 GB quarterly.
+set target   "$dest/cordata.zip"
+set partial  "$dest/cordata.zip.part"
+
+if {[file exists $target]} {
+    puts "NOTE $target already exists."
+    puts "     Check its member mtime before re-downloading -- the quarterly rolls, the"
+    puts "     file does not change daily, and a re-pull costs ~4 minutes for nothing."
+    puts "     For daily changes use the deltas at doc/cor/YYYYMMDDc.txt instead."
+}
+
+puts "connecting to $host as $user (state-published public-access account)"
+
+spawn /usr/bin/sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host
+
+expect {
+    timeout { puts "\nFAILED: timed out connecting to $host"; exit 1 }
+    eof     { puts "\nFAILED: sftp exited before a prompt"; exit 1 }
+    -re "(P|p)assword:" {
+        send "$password\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "\nFAILED: permission denied. The credential is published by the state on"
+        puts "        dos.fl.gov and may have rotated. That page 403s to plain curl --"
+        puts "        read the new value in the Browser pane, then update the operator"
+        puts "        credentials file. Do not hardcode it here."
+        exit 1
+    }
+    "sftp>" {}
+}
+
+send "get $remote_path $partial\r"
+
+expect {
+    timeout { puts "\nFAILED: transfer timed out"; exit 1 }
+    "not found" {
+        puts "\nFAILED: $remote_path not found. The quarterly path may have changed;"
+        puts "        record layout definitions live at"
+        puts "        https://dos.sunbiz.org/data-definitions/cor.html"
+        exit 1
+    }
+    "sftp>" {}
+}
+
+send "bye\r"
+expect eof
+
+if {![file exists $partial]} {
+    puts "\nFAILED: no file was written to $partial"
+    exit 1
+}
+
+set got [file size $partial]
+puts "\ndownloaded $got bytes"
+if {$got < 1000000000} {
+    puts "REFUSING to promote: $got bytes is far below the expected ~1,819,049,954."
+    puts "        Leaving the partial file at $partial. Re-run to retry."
+    exit 1
+}
+file rename -force $partial $target
+puts "wrote $target"
+puts ""
+puts "NEXT: stream, do not extract. The expansion is 18.5 GB."
+puts "  unzip -l $target                 # list members"
+puts "  unzip -p $target <member> > /dev/null   # ~8.8 s per 1.85 GB member"
+puts "Then build the random-access index:"
+puts "  python3 scripts/sunbiz_pierce.py --build-index --member <member>"
