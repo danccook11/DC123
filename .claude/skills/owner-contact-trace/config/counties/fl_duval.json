@@ -1,0 +1,45 @@
+{
+  "county_key": "fl_duval",
+  "county": "Duval",
+  "state": "FL",
+  "fips": "12031",
+  "layer_url": "https://maps.coj.net/coj/rest/services/CityBiz/Parcels/MapServer/0",
+  "alt_layer_url": null,
+  "proxy": null,
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  },
+  "http_method": "POST",
+  "parcel_id_field": "RE",
+  "parcel_id_aliases": [
+    "RE_NOSPACE"
+  ],
+  "parcel_id_format": {
+    "note": "RE uses a SPACE, not a dash — e.g. '019608 0050'. Leading zeros and the internal space must survive as text in every export.",
+    "double_space": false,
+    "preserve_leading_zeros": true
+  },
+  "owner_fields": [
+    "LNAMEOWNER",
+    "LNAME2"
+  ],
+  "mail_fields": {
+    "street": [
+      "MAILADDR1",
+      "MAILADDR2",
+      "MAILADDR3"
+    ],
+    "city": "MAILCITY",
+    "state": "MAILSTATE",
+    "zip": "MAILZIP"
+  },
+  "situs_fields": null,
+  "extra_fields": [],
+  "csz_mode": "split",
+  "throttle_s": 0.25,
+  "verified": null,
+  "traps": [
+    "Duval RE leading zeros and internal spaces must survive as text in the sherpa export — Excel will eat them.",
+    "FDOR statewide cadastral CO_NO for Duval is 26 (DOR numbering, not alphabetical)."
+  ]
+}

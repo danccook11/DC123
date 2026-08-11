@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://humanly.internal/schemas/owner-contact-trace/entity_ledger.schema.json",
+  "title": "ENTITY_LEDGER.json — one row per entity attempted",
+  "description": "Do not prefer an active filing merely because it is active: dissolved, merged and inactive entities routinely still hold title.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "retrieved_at",
+    "entities"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+    },
+    "cordata_vintage": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Member mtime of the Sunbiz quarterly. If today − vintage > 45 days, warn and offer the delta pull."
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "legal_name",
+          "jurisdiction",
+          "disposition"
+        ],
+        "properties": {
+          "legal_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "sos_doc": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "entity_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "filing_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Bytes 206-220. FLAL/DOMP/DOMLP domestic vs FORL/FORP/FORLP foreign."
+          },
+          "state_of_formation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Bytes 504-505."
+          },
+          "is_foreign_filing": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "38 of 124 matched entities were foreign and nothing follows them home. A foreign filing is NEVER 'pierced' — it is a named gap."
+          },
+          "matched_by": {
+            "enum": [
+              "jurisdiction+entity_number",
+              "exact_name+2_discriminators",
+              "AMBIGUOUS-ENTITY-MATCH",
+              "UNMATCHED"
+            ]
+          },
+          "discriminators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hop": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "hop_chain": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disposition": {
+            "type": "string",
+            "minLength": 1,
+            "examples": [
+              "PIERCED",
+              "PIERCED but no reachable human",
+              "AMBIGUOUS-ENTITY-MATCH",
+              "NO-SOS-MATCH",
+              "possible post-snapshot formation",
+              "UNEVALUATED — no working registry route for <ST> as of <date>",
+              "NOT PIERCED — possibly a foreign entity, dissolved, or a name variant"
+            ]
+          },
+          "registered_agent": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "P",
+                  "C"
+                ]
+              },
+              "addr": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "commercial": {
+                "type": "boolean"
+              }
+            }
+          },
+          "officers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "type": {
+                  "enum": [
+                    "P",
+                    "C"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "addr": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "city": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "state": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "zip": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "9 chars. A 10-char read yields '34223    M'."
+                }
+              }
+            }
+          },
+          "cordata_vintage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

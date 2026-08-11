@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://humanly.internal/schemas/owner-contact-trace/census.schema.json",
+  "title": "CENSUS.json — the complete identity inventory (stage 1)",
+  "description": "One row per parcel. NO PAID CALL MAY FIRE while any REQ field is 'missing' (as distinct from 'explicitly-unavailable'). The Source column of references/data_census.md is a per-county field map, not a global schema — literal field names live in config/counties/*.json. Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "retrieved_at",
+    "rows"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+    },
+    "county_config": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "apn",
+          "apn_norm",
+          "county",
+          "state",
+          "owner_of_record",
+          "owner_norm",
+          "owner_tight",
+          "owner_base",
+          "owner_class",
+          "owner_mailing_address",
+          "mail_city",
+          "mail_state",
+          "mail_zip",
+          "mail_class",
+          "mail_class_reason"
+        ],
+        "properties": {
+          "apn": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "apn_norm": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "parcel_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ACCTNO is NOT the parcel key (Union NC); anti-join before use."
+          },
+          "county": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "fips": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^\\d{5}$"
+          },
+          "situs_address": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "NEVER confuse with the mailing field. Situs is not a contact axis (doctrine 12)."
+          },
+          "situs_city": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "situs_zip": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_of_record": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "owner_2": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Per-county OPT. Knox packs both owners into one OWNER string; marking this REQ there reports a permanent false gap."
+          },
+          "owner_norm": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "owner_tight": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "owner_base": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "owner_class": {
+            "enum": [
+              "gov",
+              "trust_company",
+              "trust",
+              "entity",
+              "individual"
+            ]
+          },
+          "entity_type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "owner_mailing_address": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "mail_city": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "mail_state": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "mail_zip": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "mail_csz_ok": {
+            "type": "boolean"
+          },
+          "mail_class": {
+            "enum": [
+              "residential",
+              "commercial",
+              "po_box",
+              "suite_or_co",
+              "none",
+              "UNEVALUATED"
+            ]
+          },
+          "mail_class_reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "agent_desk_gate": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN"
+            ],
+            "description": "FL-only. Outside Florida there is no address-frequency index, so this is UNKNOWN and mail_class degrades to UNEVALUATED. A missing count is never a clean pass."
+          },
+          "entities_at_this_address": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "jan1_addr_1": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "PRIOR mailing address, NOT a backfill. Second anchor and recent-move signal only."
+          },
+          "suppressed": {
+            "type": "boolean"
+          },
+          "suppression_pattern": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The literal matched pattern. A comment in a config is not a filter (doctrine 15)."
+          },
+          "crm_hit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deed": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "instrument_no",
+              "recording_date",
+              "grantor",
+              "grantee",
+              "vesting_language",
+              "source",
+              "retrieved_at"
+            ],
+            "properties": {
+              "instrument_no": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "recording_date": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "grantor": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "grantee": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "vesting_language": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "retrieved_at": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+              }
+            }
+          },
+          "deed_status": {
+            "enum": [
+              "DEED-PULLED",
+              "DEED-UNAVAILABLE",
+              "OWNERSHIP-CONFLICT",
+              "UNEVALUATED"
+            ]
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "retrieved_at",
+              "anchor_basis",
+              "identity_tier",
+              "confidence_basis"
+            ],
+            "description": "Doctrine 16. Required on every emitted phone. A $0 name parse must never render like a verified mobile.",
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              },
+              "retrieved_at": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+              },
+              "anchor_basis": {
+                "type": "string",
+                "minLength": 1,
+                "description": "'parcel mailing address' | 'Sunbiz-filed address of <PRINCIPAL>' | UNKNOWN. Both keys must be indexed — indexing only the parcel mailing address produced 69 officer results and 0 extra contacts."
+              },
+              "identity_tier": {
+                "enum": [
+                  1,
+                  2,
+                  3,
+                  "UNKNOWN"
+                ]
+              },
+              "confidence_basis": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

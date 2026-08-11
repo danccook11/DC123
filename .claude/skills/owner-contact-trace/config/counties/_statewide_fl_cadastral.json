@@ -1,0 +1,15 @@
+{
+  "county_key": "_statewide_fl_cadastral",
+  "scope": "FL statewide (FDOR)",
+  "purpose": "Free portfolio finder and PID verifier. Run as part of stage 1.",
+  "layer_url": "https://services9.arcgis.com/Gh9awoU677aKree0/arcgis/rest/services/Florida_Statewide_Cadastral/FeatureServer/0/query",
+  "verify_params": "?where=PARCEL_ID='{PID}'&outFields=PARCEL_ID,CO_NO,JV,LND_VAL,OWN_NAME&returnGeometry=false&f=json",
+  "ownership_discovery_params": "?where=OWN_NAME='{OWNER}' AND CO_NO={n}",
+  "trigger": "Run ownership discovery whenever listed vs matched acreage differs by MORE THAN 10%. A prior run understated acreage 4x on 3 of 5 parcels by resolving one parcel of an assemblage.",
+  "traps": [
+    "Only PARCEL_ID is indexed — county-wide attribute queries return 400 or 504.",
+    "CO_NO uses DOR numbering, NOT alphabetical. Duval = 26.",
+    "resultRecordCount combined with a geometry envelope returns 400.",
+    "Try the parcel id both stripped and in county-native format."
+  ]
+}

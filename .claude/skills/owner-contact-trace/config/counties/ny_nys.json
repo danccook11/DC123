@@ -1,0 +1,57 @@
+{
+  "county_key": "ny_nys",
+  "county": "(statewide)",
+  "state": "NY",
+  "fips": null,
+  "layer_url": "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/MapServer/1/query",
+  "alt_layer_url": null,
+  "proxy": null,
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  },
+  "http_method": "POST",
+  "parcel_id_field": "SWIS_SBL_ID",
+  "parcel_id_aliases": [
+    "PRINT_KEY",
+    "SBL"
+  ],
+  "parcel_id_format": {
+    "note": "SWIS_SBL_ID is 26 digits = SWIS 6 + SBL 20. This is the join key.",
+    "double_space": false,
+    "preserve_leading_zeros": true
+  },
+  "owner_fields": [
+    "PRIMARY_OWNER",
+    "ADD_OWNER"
+  ],
+  "mail_fields": {
+    "street": [
+      "MAIL_ADDR"
+    ],
+    "city": "MAIL_CITY",
+    "state": "MAIL_STATE",
+    "zip": "MAIL_ZIP"
+  },
+  "situs_fields": {
+    "street": "PARCEL_ADDR",
+    "city": "MUNI_NAME",
+    "zip": "LOC_ZIP"
+  },
+  "extra_fields": [
+    "SWIS",
+    "CITYTOWN_NAME",
+    "ACRES",
+    "CALC_ACRES",
+    "PROP_CLASS",
+    "ROLL_YR"
+  ],
+  "csz_mode": "split",
+  "throttle_s": 0.25,
+  "verified": null,
+  "traps": [
+    "PRINT_KEY is NOT unique across municipalities — join on SWIS_SBL_ID or you will pull the wrong town's parcel.",
+    "returnCentroid=true combined with outSR returns 0,0. Request geometry and use shapely representative_point(), not centroid.",
+    "38 counties are public on this layer; NYC is MapPluto, not here.",
+    "For any NY manufactured-home-park owner also query NYS DHCR sxi2-m23m — it returns a Tier-1 government phone."
+  ]
+}

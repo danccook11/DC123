@@ -1,0 +1,110 @@
+# owner-contact-trace — run configuration example
+#
+# Copy, edit, and pass with --config. Every value here has a CLI flag equivalent; the CLI
+# wins. Nothing in this file is an absolute path, and nothing here is a date — "now" is
+# always computed at runtime.
+#
+# RUN_DIR resolves to <cache_root>/runs/<state>_<county>_<YYYYMMDD-HHMM>/ where cache_root is
+# resolved in this order, and NEVER hardcoded in a script:
+#     1. $OWNER_TRACE_CACHE
+#     2. ~/Library/Caches/claude-owner-enrich      (macOS — Mitch's machine)
+#     3. $XDG_CACHE_HOME/claude-owner-enrich
+#     4. ~/.cache/claude-owner-enrich
+# Intermediates, fixtures, caches and the ledger live there — outside any synced tree,
+# because CENSUS.json / HUMANS.json / phone_verdicts.json carry names, home addresses,
+# phones and deceased flags. Only the final workbook or card may be copied to
+# <project>/output/, and only after leak_scan.py and delivery_gate.py pass.
+
+input:
+  # A CSV of parcels, or a single APN via --apn. Listing-supplied parcel IDs and owner names
+  # are NEVER ingested (doctrine 13) — resolve from the county layer.
+  file: parcels.csv
+  apn_column: apn
+  county_key: tn_knox          # must match a file in config/counties/
+  state: TN
+
+mode: batch                    # batch | single
+                               # single prints the rundown card inline and writes nothing
+                               # to a synced tree unless asked.
+
+budget:
+  # --budget is REQUIRED at the CLI and defaults to 25. --i-approve must EQUAL it or nothing
+  # fires. Before the first paid call the run prints a WORST-CASE table per axis, per actor,
+  # with max_results shown. Thereafter vendor_client.py raises BudgetExhausted against the
+  # append-only ledger — never silent truncation.
+  usd: 25
+  i_approve: null              # set to the same number as usd to arm the paid stages
+  ledger: ledger.csv           # relative to cache_root
+
+  tracerfy_credits:
+    # Tracerfy is metered in CREDITS, not dollars, so it needs a second counter.
+    # 5 credits per trace_lookup/parcel_lookup HIT (misses are free, so an estimate is a
+    # ceiling). 1 credit per dnc_check when scrub is true. check_balance and list_strategies
+    # are free and run in doctor.py.
+    #
+    # !! The dollar value of one Tracerfy credit is NOT documented anywhere in our records.
+    #    Ask Mitch once, then write it into references/source_ledger.md. Until then this
+    #    stays null and the estimator reports credits, never a fabricated dollar figure.
+    usd_per_credit: null
+    refuse_if_estimate_exceeds_balance: true
+
+vendors:
+  # Order is fixed by the stage graph: Tracerfy first, because a hit ends stage 7 — no
+  # separate reverse-phone or DNC call is needed.
+  order: [tracerfy_trace_lookup, one_api_address, apivault_name, batchdata_address]
+
+  max_results:
+    # ALWAYS EXPLICIT. one-api defaults to 1; apivault defaults to 100 and bills per
+    # DELIVERED MATCH, so one common surname can cost up to $0.65 on a single name.
+    one_api_address: 4         # the household/relative graph depends on this being > 1
+    one_api_reverse_phone: 1
+    apivault_batch: 3
+    apivault_single: 5
+
+  separator_probe: true        # fire the same known-answer name in comma and semicolon form
+                               # at max_results:1 (~$0.013) and adopt the winner. Never
+                               # hard-code the separator — see references/traps.md.
+
+  sherpa_batch_size: 10        # hard cap is 25/request; a batch exceeding remaining quota is
+                               # rejected WHOLE with 429, unbilled.
+
+scrub:
+  # DNC scrubbing costs credits, so it is an explicit choice with its own line in the
+  # estimate. A number with no DNC value ships stamped
+  # "NOT YET SCRUBBED — do not dial or text".
+  enabled: false
+  stale_after_days: 31         # federal DNC refresh cycle; older re-renders as UNSCRUBBED
+
+pierce:
+  hops: 3                      # an OPERATIONAL limit, not a confidence statement. The
+                               # unresolved frontier is always emitted.
+  agent_desk_min: 15           # a residential-looking address with >= this many registry
+                               # filings is an agent desk, not a home
+  sunbiz:
+    index_mode: random_access  # random_access (recommended) | iterative_passes
+    warn_if_vintage_older_than_days: 45
+    deltas_since: null         # YYYY-MM-DD to pull doc/cor/YYYYMMDDc.txt on top of the
+                               # quarterly
+  browser_stragglers_max: 10   # search.sunbiz.org per-entity, behind a doctor availability
+                               # check
+
+batch:
+  size: 250                    # BATCH = 250 for the paid address axis
+  priorities: [P1, P2, P3]     # P1 individual+never-traced, P2 entity/trust/gov,
+                               # P3 individual+already-traced
+
+throttles:
+  county_page_s: 0.25
+  county_count_query_s: 0.12
+  opengovus_s: 0.8
+
+output:
+  format: calllist             # calllist | sherpa | launchcontrol
+  dir: output/                 # relative to the project, NOT to cache_root. Written only
+                               # after both gates pass.
+  coverage: true               # emit COVERAGE.json and the KPI denominator
+
+gates:
+  leak_scan: true
+  delivery_gate: true          # runs in a FRESH PROCESS against the finished workbook
+  strict: false                # warnings become failures

@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://humanly.internal/schemas/owner-contact-trace/humans.schema.json",
+  "title": "HUMANS.json — the evidence graph and ranked candidates",
+  "description": "Candidates are ordered for REVIEW, never accepted by score. A score may order review; it may never convert an unsupported role into a controller. Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "retrieved_at",
+    "candidates",
+    "unresolved_frontier"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+    },
+    "unresolved_frontier": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "REQUIRED. The entity names the chain stopped at. Three hops is an operational limit, not a confidence statement — omitting this implies the chain ended when it did not."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "rank",
+          "score",
+          "edges",
+          "role_status",
+          "anchored"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "first": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "person_addr": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "addr_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score": {
+            "type": "integer"
+          },
+          "score_components": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "base": {
+                "const": 5
+              },
+              "anchor": {
+                "enum": [
+                  0,
+                  100
+                ]
+              },
+              "control_title": {
+                "enum": [
+                  0,
+                  20
+                ]
+              },
+              "person_ra": {
+                "enum": [
+                  0,
+                  10,
+                  90
+                ]
+              }
+            }
+          },
+          "edges": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "edge_type",
+                "source",
+                "dated",
+                "control_bearing"
+              ],
+              "properties": {
+                "edge_type": {
+                  "enum": [
+                    "title-holder",
+                    "member",
+                    "managing-member",
+                    "manager",
+                    "general-partner",
+                    "limited-partner",
+                    "officer",
+                    "director",
+                    "trustee",
+                    "personal-representative",
+                    "registered-agent",
+                    "parent",
+                    "successor",
+                    "unknown"
+                  ]
+                },
+                "control_bearing": {
+                  "type": "boolean",
+                  "description": "Derived from edge_type. registered-agent, director, generic officer and limited-partner are FALSE and can never by themselves produce a resolved controller."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+                },
+                "dated": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+                },
+                "instrument": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Which instrument or filing names them, and in what capacity."
+                },
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "role_status": {
+            "enum": [
+              "VERIFIED-AUTHORITY",
+              "PROBABLE-AUTHORITY",
+              "AUTHORIZED-CONTACT",
+              "BENEFICIAL-CONTROL-UNKNOWN",
+              "UNKNOWN"
+            ]
+          },
+          "identity_tier": {
+            "enum": [
+              1,
+              2,
+              3,
+              "UNKNOWN"
+            ]
+          },
+          "anchored": {
+            "enum": [
+              "Y",
+              "N",
+              "UNKNOWN"
+            ],
+            "description": "Three-valued. UNKNOWN is mandatory (doctrine 18): a check that never ran serializes as UNKNOWN, never N. Coercing missing evidence to N is the single easiest way for this deliverable to lie."
+          },
+          "anchor_basis": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "surname_match": {
+            "enum": [
+              "Y",
+              "N",
+              "UNKNOWN"
+            ],
+            "description": "Three-valued. UNKNOWN is mandatory (doctrine 18): a check that never ran serializes as UNKNOWN, never N. Coercing missing evidence to N is the single easiest way for this deliverable to lie. surname5_prefix_match is a RANKING/LEAD signal only and appears in no acceptance predicate."
+          },
+          "geo_match": {
+            "enum": [
+              "Y",
+              "N",
+              "UNKNOWN"
+            ],
+            "description": "Three-valued. UNKNOWN is mandatory (doctrine 18): a check that never ran serializes as UNKNOWN, never N. Coercing missing evidence to N is the single easiest way for this deliverable to lie."
+          },
+          "is_commercial_agent": {
+            "type": "boolean",
+            "description": "Commercial agents are recorded and excluded from ranking, never contacted."
+          },
+          "ambiguity": {
+            "type": "boolean",
+            "description": "True when the top two are within 20 points, or both anchored, or both carry a control title. Both are emitted as rank 1 and rank 2. Never pick."
+          },
+          "vendor_owner_claim": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4)."
+          }
+        }
+      }
+    }
+  }
+}

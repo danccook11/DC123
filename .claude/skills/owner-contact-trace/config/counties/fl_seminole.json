@@ -1,0 +1,40 @@
+{
+  "county_key": "fl_seminole",
+  "county": "Seminole",
+  "state": "FL",
+  "fips": "12117",
+  "layer_url": "https://utility.arcgis.com/usrsvcs/servers/9b9c9fd45bdc4c39a2bd518da39d1e1c/rest/services/InformationKiosk/MapServer/1",
+  "alt_layer_url": null,
+  "proxy": null,
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  },
+  "http_method": "GET",
+  "parcel_id_field": "ParcelNumber",
+  "parcel_id_aliases": [],
+  "parcel_id_format": {
+    "note": "",
+    "double_space": false,
+    "preserve_leading_zeros": true
+  },
+  "owner_fields": [
+    "OwnerName"
+  ],
+  "mail_fields": {
+    "street": [
+      "OwnerAddress",
+      "Address2"
+    ],
+    "city": "MailingCity",
+    "state": null,
+    "zip": "Zip"
+  },
+  "situs_fields": null,
+  "extra_fields": [],
+  "csz_mode": "split",
+  "throttle_s": 0.25,
+  "verified": null,
+  "traps": [
+    "GET ONLY — POST returns 400."
+  ]
+}

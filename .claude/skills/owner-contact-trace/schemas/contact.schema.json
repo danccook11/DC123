@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://humanly.internal/schemas/owner-contact-trace/contact.schema.json",
+  "title": "contacts.jsonl — one emitted phone/email with full provenance",
+  "description": "Every emitted phone carries a provenance block. Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4).",
+  "type": "object",
+  "required": [
+    "person_name",
+    "phone",
+    "line_type",
+    "line_type_source",
+    "phone_attribution_status",
+    "line_type_status",
+    "compliance_status",
+    "primary_dnc",
+    "dnc_checked_at",
+    "dnc_lists_checked",
+    "deceased",
+    "is_litigator",
+    "provenance"
+  ],
+  "properties": {
+    "person_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "phone": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "line_type": {
+      "enum": [
+        "wireless",
+        "landline",
+        "voip",
+        "other",
+        ""
+      ],
+      "description": "NORMALIZED. one-api emits Wireless|Landline|Voip, Sherpa lowercase, Tracerfy Mobile|Landline. octlib.normalize_line_type collapses all three before any comparison; a build that maps only 'wire*' scores every Tracerfy row has_wire=False and reads the whole backbone as landlines."
+    },
+    "line_type_source": {
+      "enum": [
+        "tracerfy.phones[].type",
+        "sherpa.PhoneNumber.type",
+        "one-api.Phone-N Type",
+        "UNKNOWN"
+      ],
+      "description": "Allowlist. Any value originating from a libphonenumber actor (numberType, FIXED_LINE_OR_MOBILE) is a hard reject that raises."
+    },
+    "carrier": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "last_seen": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "phone_attribution_status": {
+      "enum": [
+        "VERIFIED-PHONE",
+        "SINGLE-SOURCE-PHONE",
+        "HOUSEHOLD-PHONE",
+        "CONTRADICTED",
+        "UNKNOWN"
+      ]
+    },
+    "line_type_status": {
+      "enum": [
+        "VERIFIED-MOBILE",
+        "REPORTED-MOBILE",
+        "LANDLINE",
+        "UNKNOWN"
+      ]
+    },
+    "compliance_status": {
+      "enum": [
+        "OUTREACH-ELIGIBLE",
+        "DNC-BLOCKED",
+        "UNSCRUBBED",
+        "LITIGATOR",
+        "DECEASED-HOLD"
+      ]
+    },
+    "primary_dnc": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "const": "UNSCRUBBED"
+        }
+      ],
+      "description": "dnc:false is NOT consent — it means 'not found on the lists checked, at that time'. A scrub older than 31 days re-renders as UNSCRUBBED."
+    },
+    "dnc_checked_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dnc_lists_checked": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deceased": {
+      "enum": [
+        "Y",
+        "N",
+        "UNKNOWN"
+      ],
+      "description": "REPORTED-DECEASED until corroborated. A vendor boolean is not a death certificate. Three-valued. UNKNOWN is mandatory (doctrine 18): a check that never ran serializes as UNKNOWN, never N. Coercing missing evidence to N is the single easiest way for this deliverable to lie."
+    },
+    "is_litigator": {
+      "enum": [
+        "Y",
+        "N",
+        "UNKNOWN"
+      ],
+      "description": "Three-valued. UNKNOWN is mandatory (doctrine 18): a check that never ran serializes as UNKNOWN, never N. Coercing missing evidence to N is the single easiest way for this deliverable to lie."
+    },
+    "reverse_verdict": {
+      "enum": [
+        "CONFIRMED",
+        "CONFIRMED-nonmobile",
+        "LIKELY",
+        "RELATIVE-ONLY",
+        "CONTRADICTED",
+        "DEAD",
+        "UNKNOWN"
+      ],
+      "description": "The band and the verdict are TWO columns, never merged. CONTRADICTED demotes any band to WEAK and moves the row to Needs Review; CONFIRMED is required to print the words PRIMARY MOBILE; a missing verdict prints band + ' (unverified line type)'."
+    },
+    "vendor_owner_claim": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4)."
+    },
+    "vendor_match_confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Recorded for audit ONLY. A vendor's matchConfidence, matched:true, or a field literally named property_owner:true is NEVER an input to any predicate or gate (doctrines 2 and 4)."
+    },
+    "upstream_lineage": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Declared upstream data source, read from the capability manifest. Two actors reselling the same aggregator are ONE source. Unknown lineage fails closed to SINGLE-SOURCE-PHONE."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "retrieved_at",
+        "anchor_basis",
+        "identity_tier",
+        "confidence_basis"
+      ],
+      "description": "Doctrine 16. Required on every emitted phone. A $0 name parse must never render like a verified mobile.",
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+        },
+        "retrieved_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+        },
+        "anchor_basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "'parcel mailing address' | 'Sunbiz-filed address of <PRINCIPAL>' | UNKNOWN. Both keys must be indexed — indexing only the parcel mailing address produced 69 officer results and 0 extra contacts."
+        },
+        "identity_tier": {
+          "enum": [
+            1,
+            2,
+            3,
+            "UNKNOWN"
+          ]
+        },
+        "confidence_basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+        }
+      }
+    }
+  }
+}

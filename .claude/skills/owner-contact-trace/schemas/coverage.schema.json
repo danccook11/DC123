@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://humanly.internal/schemas/owner-contact-trace/coverage.schema.json",
+  "title": "COVERAGE.json — one row per input APN, keyed by apn_norm",
+  "description": "UNEVALUATED means we never looked. Conflating 'we looked and rejected it' with 'we never looked' is the easiest way for a coverage report to lie. Every input APN MUST appear here; delivery_gate.py blocks a workbook with an APN that has no disposition.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "retrieved_at",
+    "rows"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+    },
+    "kpi": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Acceptance bar: classified mobiles / non-suppressed owner rows >= 0.50.",
+      "properties": {
+        "classified_mobiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "non_suppressed_owner_rows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "rows": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "apn_norm",
+          "disposition"
+        ],
+        "properties": {
+          "apn_norm": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "apn_raw": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "disposition": {
+            "enum": [
+              "CONTACTED-MOBILE",
+              "CONTACTED-NONMOBILE",
+              "PIERCED-NO-REACHABLE-HUMAN",
+              "NO-SOS-MATCH",
+              "TRUST-NEEDS-DEED",
+              "SUPPRESSED-INSTITUTIONAL",
+              "CRM-HIT",
+              "NO-OWNER-NAME",
+              "NO-ROUTE-STATE",
+              "UNEVALUATED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Populated, or an explicit reason token (UNKNOWN, UNEVALUATED, EXPLICITLY-UNAVAILABLE, NOT-APPLICABLE). Never an empty string."
+          },
+          "suppression_pattern": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_of_record": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "retrieved_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "description": "ISO-8601 UTC, second precision, Z-suffixed. Computed at emit time, never hardcoded."
+          }
+        }
+      }
+    }
+  }
+}

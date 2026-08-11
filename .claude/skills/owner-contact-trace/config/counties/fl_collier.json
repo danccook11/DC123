@@ -1,0 +1,34 @@
+{
+  "county_key": "fl_collier",
+  "county": "Collier",
+  "state": "FL",
+  "fips": "12021",
+  "layer_url": "https://services2.arcgis.com/SlIq32SqARUHIhSx/arcgis/rest/services/Parcels/FeatureServer/42",
+  "alt_layer_url": null,
+  "proxy": null,
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  },
+  "http_method": "POST",
+  "parcel_id_field": "FOLIO",
+  "parcel_id_aliases": [],
+  "parcel_id_format": {
+    "note": "",
+    "double_space": false,
+    "preserve_leading_zeros": true
+  },
+  "owner_fields": [
+    "NAME1",
+    "NAME2"
+  ],
+  "mail_fields": null,
+  "situs_fields": null,
+  "extra_fields": [],
+  "csz_mode": "split",
+  "throttle_s": 0.25,
+  "verified": null,
+  "traps": [
+    "Owner NAME only — this layer carries no mailing fields, so the anchor cannot be built from it. Rows resolve to owner_of_record with owner_mailing_address explicitly-unavailable.",
+    "UNREACHABLE as of 2026-08-10 — Fastly TLS fingerprinting; ags2.colliercountyfl.gov no longer resolves. Emit a named gap, do not silently zero."
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "county_key": "tn_knox",
+  "county": "Knox",
+  "state": "TN",
+  "fips": "47093",
+  "layer_url": "https://www.kgis.org/arcgis/rest/services/Maps/QueryTasks/MapServer/3/query",
+  "alt_layer_url": null,
+  "proxy": "https://www.kgis.org/proxy/proxy.ashx?{urlencoded_target}",
+  "headers": {
+    "Referer": "https://www.kgis.org/kgismaps/Map.htm",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  },
+  "http_method": "POST",
+  "parcel_id_field": "PARCELID",
+  "parcel_id_aliases": [],
+  "parcel_id_format": {
+    "note": "PARCELID embeds a DOUBLE SPACE: '090  07403', '125  00801'. Query as PARCELID LIKE '090  07403%'.",
+    "double_space": true,
+    "preserve_leading_zeros": true
+  },
+  "owner_fields": [
+    "OWNER"
+  ],
+  "mail_fields": {
+    "street": [
+      "FULL_MAIL_ADDRESS"
+    ],
+    "city": null,
+    "state": null,
+    "zip": null
+  },
+  "situs_fields": {
+    "street": "FULL_ADDRESS"
+  },
+  "extra_fields": [
+    "CALCULATED_AREA",
+    "SYS_CALC_AREA",
+    "RECORDED_AREA",
+    "TAX_DISTRICT",
+    "LANDUSE",
+    "APPRAISED_TOTAL",
+    "SALE_DATE",
+    "PURCHASE_PRICE",
+    "SUBDIVISION_NAME"
+  ],
+  "csz_mode": "combined",
+  "throttle_s": 0.25,
+  "verified": "2026-08-11",
+  "traps": [
+    "PARCELID embeds DOUBLE SPACES — preserve them in the LIKE pattern; normalize only for comparison.",
+    "REPLACE() in a where clause returns 400. Fall back to an interleaved-wildcard LIKE '0%4%5%...' plus client-side normalized equality.",
+    "Direct REST access returns 401 anonymously — always go through proxy.ashx with the Referer header and a browser UA.",
+    "403 on POST means a missing Referer. 404 means it should have been a POST. A long geometry or a % in a GET returns 404, 400 or 414.",
+    "WebFetch 403s this host — use curl.",
+    "OWNER is ONE string carrying both owners ('FUGATE RONALD ALLEN & VIRGINIA M'). owner_2 is OPT for this county or Knox reports a permanent false gap. Split with octlib.split_owner_string().",
+    "FULL_MAIL_CITY_STATE_ZIP is a single combined field ('KNOXVILLE, TN 37931') — csz_mode combined, parse with octlib.csz_split().",
+    "The tax roll sits behind Search/Disclaimer.aspx on the first hit.",
+    "Tennessee_Property_Boundaries_Public_Use covers 86 of 95 counties — Knox is ABSENT from it.",
+    "TN is a disclosure state: PURCHASE_PRICE and SALE_DATE are real, unlike TX.",
+    "There is NO entity-pierce route for TN as of 2026-08-11 (OpenGovUS 500s, tnbear dead). Entity-owned Knox parcels emit UNEVALUATED — TN registry route down."
+  ],
+  "combined_csz_field": "FULL_MAIL_CITY_STATE_ZIP",
+  "owner_field_packs_both_owners": true,
+  "count_query_throttle_s": 0.12,
+  "human_readable": {
+    "ownercard": "parcelreports/ownercard.aspx?id={id}",
+    "detail_report": "PropertyMapAndDetailsReport",
+    "tax_roll": "https://propertyinfo.knoxcountytn.gov/search/commonsearch.aspx?mode=realprop"
+  }
+}
