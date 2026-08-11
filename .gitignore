@@ -1,0 +1,28 @@
+# Runtime artifacts — never committed. Run intermediates, caches, fixtures and the
+# vendor-spend ledger live outside the repo entirely (see SKILL.md "Prerequisites":
+# $OWNER_TRACE_CACHE -> ~/Library/Caches/claude-owner-enrich -> $XDG_CACHE_HOME -> ~/.cache).
+# These entries exist only to catch an accidental in-repo write.
+runs/
+qa_quarantine/
+fixtures/
+output/
+*.ledger.csv
+ledger.csv
+CENSUS.json
+CENSUS_COVERAGE.json
+HUMANS.json
+COVERAGE.json
+phone_verdicts.json
+*.xlsx
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+*.swp
