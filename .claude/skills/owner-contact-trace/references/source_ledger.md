@@ -94,6 +94,24 @@ estimate exceeds the balance**.
 **Opening balance observed 2026-08-11: 915 credits**, of which 10 were spent on the two
 acceptance-test controls (Knox `parcel_lookup`, Fort Stockton `trace_lookup`).
 
+### ⛔ 2026-08-12 — BALANCE IS ZERO
+
+Probed 2026-08-12T21:04Z. `ping` returns `pong`, `check_balance` returns **0 credits**,
+`list_strategies` returns all 25 presets. **The server is healthy; the account is empty.**
+
+915 → 0 in one day. Something consumed the balance between 2026-08-11 and 2026-08-12 and it
+was not this skill.
+
+**Consequence, and it is the exact scenario the standing caveat warns about:** a zero balance
+turns the person-to-phone backbone off *silently*. `trace_lookup`, `parcel_lookup` and
+`dnc_check` cannot fire. Because `dnc_check` is the **only live scrub source since Sherpa
+died**, every row on every run degrades to `NOT YET SCRUBBED — do not dial or text` until the
+balance is restored.
+
+`doctor.py` reads `check_balance` before every run and the estimator refuses to fire when the
+estimate exceeds the balance — at 0 credits that means **it refuses everything**, which is
+correct. Restoring the balance is a `## Blocked on Mitch` item (account/payment).
+
 ### ❓ UNANSWERED — ask Mitch once, then write the answer here
 
 **The dollar value of one Tracerfy credit is not documented anywhere in our records.**
@@ -142,6 +160,51 @@ which is why the TPS-backed actors above matter.
   and reads `pricing.userTier` for the estimate.
 
 ---
+
+## ⛔ 2026-08-12 — the Apify account tier is FREE, not BRONZE
+
+Read from `fetch-actor-details` `pricing.userTier` at probe time, which is exactly what the
+rule at the top of this file exists to force.
+
+| Actor | Recorded 2026-08-11 | Measured 2026-08-12 |
+|---|---|---|
+| `one-api/skip-trace` | $0.007 at **BRONZE** | **$0.02 — the account is on FREE** |
+| `apivault_labs/skip-trace-people-finder` | $0.0065/match flat | $0.0065/match flat (no tier variation on that event) |
+
+**This is the 2.9× swing the rule was written about, and it is live.** A 200-address batch at
+`max_results: 4`:
+
+- at BRONZE — $5.60 (22% of a $25 budget)
+- **at FREE — $16.00 (64% of a $25 budget)**
+
+The estimator reads the tier and, when the tier is unknown, **fails safe to the worst case
+($0.02) rather than the cheap one.** Do not re-plan a run on the BRONZE number.
+
+Both actors probed `isDeprecated: false`. `one-api` modified 2026-08-10, 9,288 total users.
+`apivault_labs` modified **2026-08-08**, which matches the date on the separator-probe note —
+so that guidance still stands.
+
+## ⛔ 2026-08-12 — `one-api` lineage is now DECLARED, and it collides
+
+`one-api/skip-trace`'s own store description names its upstreams:
+
+> TruePeopleSearch, FastPeopleSearch, Lead Finder, Truthfinder, Spokeo, BeenVerified,
+> PeopleFinders
+
+That moves `one-api` from `UNDECLARED` to **declared — and it overlaps with the
+TruePeopleSearch-backed actors in this same table**: `scrapyspider/truepeoplesearch-contact-finder`
+(TPS via ScrapFly) and `jungle_synthesizer/truepeoplesearch-people-search-scraper`
+(TPS via Bright Data).
+
+**Therefore `one-api` may NOT corroborate either of those, and they may not corroborate each
+other.** They are one source wearing three hats, and a pair drawn from that set yields
+`SINGLE-SOURCE-PHONE`, never `VERIFIED-PHONE` (acceptance test 27).
+
+This narrows the corroboration options considerably. What can still serve as an
+upstream-independent source B: `apivault_labs` (lineage still undeclared — so it also fails
+closed until asked), BatchData, Skip Sherpa, and the government sources (NYS DHCR
+`sxi2-m23m`, county recorder). **Ask both Tracerfy and apivault_labs to declare lineage** —
+until they do, every corroboration involving them fails closed.
 
 ## Corroboration requires UPSTREAM independence
 

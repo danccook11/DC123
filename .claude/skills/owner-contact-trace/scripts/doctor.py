@@ -121,8 +121,13 @@ DATED_VERDICTS = [
 LINEAGE = {
     "tracerfy": "UNDECLARED — ask the vendor and record the answer here. Until then any "
                 "corroboration involving Tracerfy fails closed to SINGLE-SOURCE-PHONE.",
-    "one-api/skip-trace": "UNDECLARED",
-    "apivault_labs/skip-trace-people-finder": "UNDECLARED",
+    # DECLARED 2026-08-12 from the actor's own store description. This COLLIDES with the
+    # TPS-backed actors below: one-api may not corroborate either of them, and they may not
+    # corroborate each other. One source, three hats (acceptance test 27).
+    "one-api/skip-trace": "TruePeopleSearch, FastPeopleSearch, Lead Finder, Truthfinder, "
+                          "Spokeo, BeenVerified, PeopleFinders",
+    "apivault_labs/skip-trace-people-finder": "UNDECLARED — ask the vendor. Until declared, "
+                                              "any corroboration involving it fails closed.",
     "scrapyspider/truepeoplesearch-contact-finder": "TruePeopleSearch (via ScrapFly)",
     "jungle_synthesizer/truepeoplesearch-people-search-scraper":
         "TruePeopleSearch (via Bright Data)",
@@ -311,13 +316,31 @@ def main(argv=None):
     supplied = None
     if args.mcp_results:
         supplied = json.loads(pathlib.Path(args.mcp_results).read_text(encoding="utf-8"))
+        # Look for evidence a forbidden tool was CALLED, not for its NAME appearing in prose.
+        # A blanket substring scan makes it impossible to write an honest note explaining
+        # why the backbone is off ("trace_lookup cannot fire at zero credits"), which is
+        # exactly the note an operator most needs to read.
         for name, rec in supplied.items():
-            for bad in TRACERFY_FORBIDDEN_IN_DOCTOR:
-                if bad in json.dumps(rec):
-                    print("REFUSING: --mcp-results mentions {!r}, which is credit-consuming "
-                          "and must never run in doctor mode (acceptance test 24)."
-                          .format(bad), file=sys.stderr)
-                    return 2
+            called = []
+            if isinstance(rec, dict):
+                called += [k for k in rec if k in TRACERFY_FORBIDDEN_IN_DOCTOR]
+                for key in ("called", "calls", "invoked", "tools_called"):
+                    v = rec.get(key)
+                    if isinstance(v, str):
+                        called.append(v)
+                    elif isinstance(v, (list, tuple)):
+                        called += [str(x) for x in v]
+                if rec.get("credits_deducted"):
+                    called.append("something deducted {} credit(s)".format(
+                        rec["credits_deducted"]))
+            hits = [c for c in called if any(b in str(c)
+                                             for b in TRACERFY_FORBIDDEN_IN_DOCTOR)] \
+                or [c for c in called if "credit(s)" in str(c)]
+            if hits:
+                print("REFUSING: --mcp-results shows {!r} CALLED {}, which is "
+                      "credit-consuming and must never run in doctor mode "
+                      "(acceptance test 24).".format(name, hits), file=sys.stderr)
+                return 2
 
     m = build_manifest(offline=args.offline, mcp_supplied=supplied)
 

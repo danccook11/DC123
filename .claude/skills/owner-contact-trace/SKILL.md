@@ -221,9 +221,21 @@ Stated plainly rather than described as working:
 Every BLOCKED entry carries its zero-cost re-probe. Probe before assuming; do not code around a source that may have come back.
 
 ```
-2026-08-11 — Tracerfy MCP — LIVE, 915 credits — re-probe check_balance (free) at every run
-             start; a zero balance turns the backbone off silently and every downstream row
-             degrades to NOT YET SCRUBBED
+2026-08-12 — Tracerfy MCP — REACHABLE BUT ZERO CREDITS (was 915 on 2026-08-11) — ping returns
+             pong and the free tools work, so a naive health check reads it as fine. The
+             account is empty: trace_lookup, parcel_lookup and dnc_check cannot fire, and
+             because dnc_check is the only live scrub source since Sherpa died, EVERY row
+             degrades to NOT YET SCRUBBED. Re-probe check_balance (free); restoring the
+             balance is Blocked on Mitch
+2026-08-12 — Apify — account tier is FREE, not BRONZE — one-api is $0.02/result, not $0.007.
+             A 200-address batch at max_results 4 is $16.00, not $5.60. Re-read
+             pricing.userTier from fetch-actor-details at every estimate; unknown tier fails
+             safe to the worst case
+2026-08-12 — Apify one-api — lineage now DECLARED (TruePeopleSearch, FastPeopleSearch,
+             Truthfinder, Spokeo, BeenVerified, PeopleFinders) and it COLLIDES with the
+             TPS-backed actors — one-api can no longer corroborate scrapyspider or
+             jungle_synthesizer; that pairing is SINGLE-SOURCE-PHONE, never VERIFIED-PHONE
+2026-08-11 — Tracerfy MCP — LIVE, 915 credits — superseded by the 2026-08-12 probe above
 2026-08-11 — OpenGovUS TN mirror — HTTP 500 on every query form — TN has no entity-pierce
              route today; emit UNEVALUATED, never escalate to a paid vendor
 2026-08-10 — Skip Sherpa — key BLOCKED, rotated key returns "Invalid API Key"; /api/business
